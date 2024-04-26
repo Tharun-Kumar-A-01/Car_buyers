@@ -6,6 +6,12 @@ function Login() {
 
   // Function to handle login
   const handleLogin = () => {
+	const _username = document.getElementById('username').value;
+	const _password = document.getElementById('password').value;
+
+	if(!_username |!_password ){
+	  alert("Please fill in all fields before posting.");
+	}
     // Make a POST request to your server to authenticate the user
     fetch("http://localhost:5000/Login", {  
       method: "POST",
@@ -20,17 +26,13 @@ function Login() {
       .then((data) => {
         // Assuming the server responds with a token
         const { token } = data;
-        
+        console.log(token);
         // Store the token in localStorage
         localStorage.setItem('token', token);
 
         // Redirect to the dashboard or perform any other necessary action
         window.location.href = '/';
       })
-      .catch((error) => {
-        console.error("Login error:", error);
-        // Handle login errors here
-      });
   };
 
   function signin(){

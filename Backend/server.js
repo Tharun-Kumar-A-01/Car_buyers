@@ -4,8 +4,6 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 
 const secretKey = crypto.randomBytes(64).toString('hex');
 const secret_Key = secretKey;
@@ -51,9 +49,8 @@ app.post('/post', async (req, res) => {
   }
 });
 
-app.get('/myPosts', async (req, res) => {
+app.get('/myPosts',verifyToken, async (req, res) => {
   const username = req.query.username; // Retrieve username from query parameter
-  const token = req.headers.authorization;
   console.log(username);
 
   try {
@@ -128,7 +125,8 @@ app.post("/Login", async (req, res) => {
 
 // Add a middleware function to verify JWT tokens
 function verifyToken(req, res, next) {
-  const token = req.headers.authorization;
+  const authHeader = req.headers.authorization;
+  const token = authHeader.split(" ")[1];
   console.log(token);
 
   if (!token) {
