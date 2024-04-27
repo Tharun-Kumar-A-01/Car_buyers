@@ -9,11 +9,12 @@ const secretKey = crypto.randomBytes(64).toString('hex');
 const secret_Key = secretKey;
 
 const app = express();
+require('dotenv').config();
 
 
 // Allow requests from the specified frontend origin
 app.use(cors());
-const dbURI = "mongodb+srv://manikandan05082003:Manicdon07%40@cluster0.scriurb.mongodb.net/Cars";
+const dbURI = process.env.DB_URI;
 mongoose
   .connect(dbURI, {
     useNewUrlParser: true,
@@ -76,7 +77,7 @@ app.get('/fetchCars', async (req, res) => {
 });
 
 app.use(express.json());
-require("../backend/models/signup");
+require("./models/signup");
 const sign = mongoose.model("signupdata");
 
 app.post("/signup", async (req, res) => {
@@ -126,24 +127,26 @@ app.post("/Login", async (req, res) => {
 // Add a middleware function to verify JWT tokens
 function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
+ 
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+     return res.status(401).json({ error: "Token not provided or invalid format" });
+  }
+ 
   const token = authHeader.split(" ")[1];
   console.log(token);
-
-  if (!token) {
-    return res.status(401).json({ error: "Token not provided" });
-  }
-
+ 
   jwt.verify(token, secret_Key, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ error: "Failed to authenticate token" });
-    }
-
-    // Store the username in the request for future use
-    req.username = decoded.username;
-
-    next();
+     if (err) {
+       return res.status(403).json({ error: "Failed to authenticate token" });
+     }
+ 
+     // Store the username in the request for future use
+     req.username = decoded.username;
+ 
+     next();
   });
-}
+ }
+ 
 
 // Add an endpoint to get the username based on the token
 app.get("/getUsername", verifyToken, (req, res) => {
